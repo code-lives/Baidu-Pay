@@ -1,0 +1,17 @@
+{
+    "name": "code-lives/baidu-pay",
+    "description": "百度小程序支付",
+    "type": "library",
+    "license": "MIT",
+    "version":"3.0",
+    "authors": [
+        {
+            "name": "lijie",
+            "email": "18734351007@163.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload":{
+   	"psr-4":{"Baidu\\Pay\\":"src"}
+    }
+}
