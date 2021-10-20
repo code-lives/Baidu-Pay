@@ -27,12 +27,12 @@
 # 初始化
 ```php
     //use Baidu\Pay\Pays;
-	$Baidu = new Pays($config);
+    $Baidu = new Pays($config);
 ```
 ## 获取token
 ```php
     $Baidu = new Pays($config);
-	$result = $Baidu->getToken();
+    $result = $Baidu->getToken();
 ```
 # 支付参数配置
  | 参数名字 | 类型   | 必须 | 说明       |
@@ -57,7 +57,7 @@
 		'access_token' => 'abcde',
 		'tpOrderId' => '123456',
 	];
-	$result = $Baidu->findOrder($order);
+    $result = $Baidu->findOrder($order);
 
 ```
 # 退款参数配置
