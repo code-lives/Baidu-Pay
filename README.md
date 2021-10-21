@@ -13,16 +13,20 @@
  | rsaPriKeyStr | string | 是   | 私钥（只需要一行长串，不需要文件）     |
  | rsaPubKeyStr | string | 是   | 百度小程序支付的平台公钥(支付回调需要) |
 
+# 安装
+```php
+   composer require code-lives/baidu-pay
+```
 ## Demo
 ```php
-	$config = [
-		'appkey' => 'abcdef',
-		'payappKey' => "MMMMMMMM",
-		'appSecret' => 'ABCDEF',
-		'dealId' => 123456,
-		'rsaPriKeyStr' => "ABCDEF",
-		'rsaPubKeyStr' => 'ABCDEF',
-	];
+    $config = [
+	'appkey' => 'abcdef',
+	'payappKey' => "MMMMMMMM",
+	'appSecret' => 'ABCDEF',
+	'dealId' => 123456,
+	'rsaPriKeyStr' => "ABCDEF",
+	'rsaPubKeyStr' => 'ABCDEF',
+    ];
 ```
 # 初始化
 ```php
@@ -43,7 +47,7 @@
 ## Demo
 ```php
 
-	$result = $Baidu->getOrderParm($order, $money, $desc);
+    $result = $Baidu->getOrderParm($order, $money, $desc);
 
 ```
 # 订单查询参数配置
@@ -54,9 +58,9 @@
 
 ```php
     $order = [
-		'access_token' => 'abcde',
-		'tpOrderId' => '123456',
-	];
+	'access_token' => 'abcde',
+	'tpOrderId' => '123456',
+    ];
     $result = $Baidu->findOrder($order);
 
 ```
@@ -74,16 +78,16 @@
 ## Demo
 ```php
     $data = [
-		'token' => 'abcd',
-		'bizRefundBatchId' => 123456,//百度平台订单号
-		'isSkipAudit' => 1,
-		'orderId' => 123456,
-		'refundReason' => '测试退款',
-		'refundType' => 2,//
-		'tpOrderId' => '123',//自己平台订单号
-		'userId' => 123,
-	];
-	$result = $Baidu->applyOrderRefund($data);
+	'token' => 'abcd',
+	'bizRefundBatchId' => 123456,//百度平台订单号
+	'isSkipAudit' => 1,
+	'orderId' => 123456,
+	'refundReason' => '测试退款',
+	'refundType' => 2,//
+	'tpOrderId' => '123',//自己平台订单号
+	'userId' => 123,
+    ];
+    $result = $Baidu->applyOrderRefund($data);
 
 ```
 # 支付异步通知
