@@ -86,3 +86,7 @@
 	$result = $Baidu->applyOrderRefund($data);
 
 ```
+# 支付异步通知
+```php
+    $Baidu->notifyCheck($_POST); //返回 true false
+```
