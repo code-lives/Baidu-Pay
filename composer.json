@@ -1,6 +1,6 @@
 {
     "name": "code-lives/baidu-pay",
-    "description": "百度小程序支付",
+    "description": "百度小程序支付、订单查询、退款、支付回调、获取token",
     "type": "library",
     "license": "MIT",
     "version":"3.0",
