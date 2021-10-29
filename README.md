@@ -1,4 +1,4 @@
-# 百度小程序支付
+# 百度小程序支付（点个收藏是我前进的动力）
 
 [官方接口文档](https://smartprogram.baidu.com/docs/develop/function/parameter/)
 
