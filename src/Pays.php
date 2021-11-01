@@ -10,12 +10,14 @@ class Pays
 	private $rsaPriKeyStr;
 	private $signFieldsRange;
 	private $rsaPubKeyStr;
+	private $appid;
 	private $applyOrderRefundUrl = 'https://openapi.baidu.com/rest/2.0/smartapp/pay/paymentservice/applyOrderRefund';
 	protected $findByTpOrderIdUrl = "https://openapi.baidu.com/rest/2.0/smartapp/pay/paymentservice/findByTpOrderId";
 	private $appSecret;
 
 	public function __construct($config)
 	{
+		$this->appid = $config['appid'];
 		$this->appKey = $config['appkey'];
 		$this->payappKey = $config['payappKey'];
 		$this->dealId = $config['dealId'];
@@ -38,11 +40,29 @@ class Pays
 		$data['signFieldsRange'] = $this->signFieldsRange;
 		return $data;
 	}
+	/**
+	 * 获取token
+	 */
 	public function getToken()
 	{
 		$url = "https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&client_id=" . $this->appKey . "&client_secret=" . $this->appSecret . "&scope=smartapp_snsapi_base";
-		$token = file_get_contents($url);
-		$result = json_decode($token, true);
+		$result = json_decode($this->curl_get($url), true);
+		return $result;
+	}
+	/**
+	 * 获取openid 
+	 * @param string $code 
+	 * @return array 成功返回数组 失败为空
+	 */
+	public function getOpenid($code)
+	{
+		$url = "https://spapi.baidu.com/oauth/jscode2sessionkey?code=" . $code . "&client_id=" . $this->appKey . "&sk=" . $this->appSecret;
+		$result = json_decode($this->curl_get($url), true);
+		if (isset($result['openid'])) {
+			return $result;
+		} else {
+			return false;
+		}
 		return $result;
 	}
 	/**
@@ -99,16 +119,15 @@ class Pays
 	}
 	protected static function curl_get($url)
 	{
-		$ch = curl_init();
-		//设置选项，包括URL
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-
-		//执行并获取HTML文档内容
-		$output = curl_exec($ch);
-		//释放curl句柄
-		curl_close($ch);
+		$headerArr = array("Content-type:application/x-www-form-urlencoded");
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $headerArr);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		$output = curl_exec($curl);
+		curl_close($curl);
 		return $output;
 	}
 	/**
@@ -139,6 +158,63 @@ class Pays
 		curl_close($ch);
 
 		return $output;
+	}
+	/**
+	 * 解密手机号
+	 * 
+	 * @param string $session_key 前端传递的session_key
+	 * @param string $iv 		  前端传递的iv
+	 * @param string $ciphertext  前端传递的ciphertext
+	 */
+	public function decryptphone($session_key, $iv, $ciphertext)
+	{
+		$plaintext = decrypt($ciphertext, $iv, $this->appKey, $session_key);
+		return $plaintext;
+	}
+	/**
+	 * 数据解密：低版本使用mcrypt库（PHP < 5.3.0），高版本使用openssl库（PHP >= 5.3.0）。
+	 *
+	 * @param string $ciphertext    待解密数据，返回的内容中的data字段
+	 * @param string $iv            加密向量，返回的内容中的iv字段
+	 * @param string $app_key       创建小程序时生成的app_key
+	 * @param string $session_key   登录的code换得的
+	 * @return string | false
+	 */
+	private function decrypt($ciphertext, $iv, $app_key, $session_key)
+	{
+		$session_key = base64_decode($session_key);
+		$iv = base64_decode($iv);
+		$ciphertext = base64_decode($ciphertext);
+
+		$plaintext = false;
+		if (function_exists("openssl_decrypt")) {
+			$plaintext = openssl_decrypt($ciphertext, "AES-192-CBC", $session_key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv);
+		} else {
+			$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, null, MCRYPT_MODE_CBC, null);
+			mcrypt_generic_init($td, $session_key, $iv);
+			$plaintext = mdecrypt_generic($td, $ciphertext);
+			mcrypt_generic_deinit($td);
+			mcrypt_module_close($td);
+		}
+		if ($plaintext == false) {
+			return false;
+		}
+
+		// trim pkcs#7 padding
+		$pad = ord(substr($plaintext, -1));
+		$pad = ($pad < 1 || $pad > 32) ? 0 : $pad;
+		$plaintext = substr($plaintext, 0, strlen($plaintext) - $pad);
+
+		// trim header
+		$plaintext = substr($plaintext, 16);
+		// get content length
+		$unpack = unpack("Nlen/", substr($plaintext, 0, 4));
+		// get content
+		$content = substr($plaintext, 4, $unpack['len']);
+		// get app_key
+		$app_key_decode = substr($plaintext, $unpack['len'] + 4);
+
+		return $app_key == $app_key_decode ? $content : false;
 	}
 	/**
 	 * @desc 使用私钥生成签名字符串
