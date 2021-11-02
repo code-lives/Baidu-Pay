@@ -168,7 +168,8 @@ class Pays
 	 */
 	public function decryptphone($session_key, $iv, $ciphertext)
 	{
-		$plaintext = decrypt($ciphertext, $iv, $this->appKey, $session_key);
+
+		$plaintext = self::decrypt($ciphertext, $iv, $this->appKey, $session_key);
 		return $plaintext;
 	}
 	/**
@@ -180,8 +181,9 @@ class Pays
 	 * @param string $session_key   登录的code换得的
 	 * @return string | false
 	 */
-	private function decrypt($ciphertext, $iv, $app_key, $session_key)
+	private static function decrypt($ciphertext, $iv, $app_key, $session_key)
 	{
+
 		$session_key = base64_decode($session_key);
 		$iv = base64_decode($iv);
 		$ciphertext = base64_decode($ciphertext);
