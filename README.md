@@ -2,10 +2,13 @@
 
 [官方接口文档](https://smartprogram.baidu.com/docs/develop/function/parameter/)
 
+# 说明（重要）
+#### 支付回调一定要保存userId 退款需要。
 
 # Config 参数
  | 参数名字     | 类型   | 必须 | 说明                                   |
  | ------------ | ------ | ---- | -------------------------------------- |
+ | appid       | string | 是   | 百度小程序appkey（退款必须）                     |
  | appkey       | string | 是   | 百度小程序appkey                       |
  | payappKey    | string | 是   | 百度小程序支付appkey                   |
  | appSecret    | string | 是   | 百度小程序aapSecret                    |
@@ -20,6 +23,7 @@
 ## Demo
 ```php
     $config = [
+    	'appid'=>'abcdef',
 	'appkey' => 'abcdef',
 	'payappKey' => "MMMMMMMM",
 	'appSecret' => 'ABCDEF',
